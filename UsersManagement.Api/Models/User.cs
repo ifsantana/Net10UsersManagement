@@ -1,10 +1,11 @@
-﻿namespace UsersManagement.Api.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace UsersManagement.Api.Models
 {
-    public class User
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public int Age { get; set; }
-    }
+    public record User(
+        int Id,
+        [Required, MinLength(3)] string Name,
+        [Required, EmailAddress] string Email,
+        [Required] int Age
+    );
 }
