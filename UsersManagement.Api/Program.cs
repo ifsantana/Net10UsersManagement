@@ -19,6 +19,8 @@ builder.Services.AddTransient<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
+app.MapGet("/health", () => "Healthy!");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
