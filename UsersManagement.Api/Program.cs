@@ -1,14 +1,21 @@
+using Microsoft.EntityFrameworkCore;
+using System;
 using UsersManagement.Api.Repositories;
+using UsersManagement.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<PgDataContext>(options =>
+    options.UseNpgsql(connectionString)
+);
 builder.Services.AddOpenApi();
 builder.Services.AddValidation();
-builder.Services.AddSingleton<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IUsersService, UsersService>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 

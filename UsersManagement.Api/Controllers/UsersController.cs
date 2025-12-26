@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Concurrent;
 using UsersManagement.Api.Models;
 using UsersManagement.Api.Repositories;
+using UsersManagement.Api.Services;
 
 namespace UsersManagement.Api.Controllers
 {
@@ -10,23 +11,24 @@ namespace UsersManagement.Api.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private ConcurrentDictionary<int, User> _users;
+        private IUsersService _usersService;
 
-        public UsersController(IUserRepository userRepository)
+        public UsersController(IUsersService usersService)
         {
-           _users = userRepository.Users;
+            _usersService = usersService;
         }
 
         [HttpGet]
         public IActionResult GetUsers()
         {
-            return Ok(_users);
+            return Ok(_usersService.ListAll());
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetUser(int id)
+        public IActionResult GetUser(string id)
         {
-            if (_users.TryGetValue(id, out var user))
+            var user = _usersService.GetById(id);
+            if (user != null)
             {
                 return Ok(user);
             }
@@ -34,19 +36,22 @@ namespace UsersManagement.Api.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateUser([FromBody] User user)
+        public IActionResult CreateUser([FromBody] UserDto user)
         {
-            if (_users.TryAdd(user.Id, user))
+            var createdUser = _usersService.Create(user);
+
+            if (createdUser != null)
             {
-                return CreatedAtAction(nameof(GetUsers), new { id = user.Id }, user);
+                return CreatedAtAction(nameof(GetUsers), new { id = createdUser.Id }, createdUser);
             }
             return Conflict("User with the same ID already exists.");
         }
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteUser(int id)
+        public IActionResult DeleteUser(string id)
         {
-            if (_users.TryRemove(id, out _))
+            var user = _usersService.Delete(id);
+            if (user)
             {
                 return NoContent();
             }

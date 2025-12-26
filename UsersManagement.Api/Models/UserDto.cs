@@ -2,8 +2,8 @@
 
 namespace UsersManagement.Api.Models
 {
-    public record User(
-        int Id,
+    public record UserDto(
+        string Id,
         [Required, MinLength(3)] string Name,
         [Required, EmailAddress] string Email,
         [Required] int Age
